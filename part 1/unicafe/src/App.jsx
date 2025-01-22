@@ -5,26 +5,21 @@ const App = () => {
     const [good, setGood] = useState(0)
     const [neutral, setNeutral] = useState(0)
     const [bad, setBad] = useState(0)
-    const [total, setTotal] = useState(0)
 
     const handleGoodClick = () => {
         const updatedGood = good + 1;
         setGood(updatedGood);
-        const updatedAll = updatedGood + neutral + bad;
-        setTotal(updatedAll);
     }
     const handleNeutralClick = () => {
         const updatedNeutral = neutral + 1;
         setNeutral(updatedNeutral);
-        const updatedAll = updatedNeutral + good + bad;
-        setTotal(updatedAll);
     }
     const handleBadClick = () => {
         const updatedBad = bad + 1;
         setBad(updatedBad);
-        const updatedAll = updatedBad + good + neutral;
-        setTotal(updatedAll);
     }
+
+    const total = good + bad + neutral;
 
     let average = 0;
     if (total > 0) {
