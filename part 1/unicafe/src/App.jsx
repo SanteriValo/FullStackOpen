@@ -31,20 +31,27 @@ const App = () => {
         positive = (good / total) * 100;
     }
 
+    let statisticsContent
+    if (total === 0) {
+        statisticsContent = <p>No feedback given</p>
+    } else {
+        statisticsContent = <Statistics
+            good={good}
+            neutral={neutral}
+            bad={bad}
+            total={total}
+            average={average}
+            positive={positive}
+        />
+    }
+
     return (
         <div>
             <h1>give feedback</h1>
             <Button onClick={handleGoodClick} text='Good'/>
             <Button onClick={handleNeutralClick} text='Neutral'/>
             <Button onClick={handleBadClick} text='Bad'/>
-            <Statistics
-                good={good}
-                neutral={neutral}
-                bad={bad}
-                total={total}
-                average={average}
-                positive={positive}
-            />
+            {statisticsContent}
         </div>
     )
 }
