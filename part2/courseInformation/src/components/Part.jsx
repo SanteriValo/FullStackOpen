@@ -1,6 +1,6 @@
-const Part = (props) => (
+const Part = ({ name, exercises }) => (
     <p>
-        {props.part.name} {props.part.exercises}
+        {name} {exercises}
     </p>
 )
 

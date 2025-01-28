@@ -1,11 +1,11 @@
 import Header from "./Header.jsx";
 import Content from "./Content.jsx";
 
-const Course = (props) => {
+const Course = ({ course }) => {
     return (
         <div>
-            <Header course={props.course.name} />
-            <Content parts={props.course.parts} />
+            <Header name={course.name} />
+            <Content parts={course.parts} />
         </div>
     )
 }

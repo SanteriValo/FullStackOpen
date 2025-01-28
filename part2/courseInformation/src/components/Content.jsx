@@ -1,16 +1,19 @@
 import Part from "./Part.jsx";
 
-const Content = (props) => {
-    const total = props.parts.reduce((sum, x) => sum + x.exercises, 0)
+const Content = ({ parts }) => {
     return (
-    <div>
-        <Part part={props.parts[0]}/>
-        <Part part={props.parts[1]}/>
-        <Part part={props.parts[2]}/>
-        <Part part={props.parts[3]}/>
-        <p><b>total of {total} exercises</b></p>
-    </div>
+        <div>
+            {parts.map((part) => (
+                <Part key={part.id} name={part.name} exercises={part.exercises} />
+            ))}
+            <Total parts={parts} />
+        </div>
     )
 }
+
+const Total = ({ parts }) => {
+    const total = parts.reduce((sum, part) => sum + part.exercises, 0);
+    return <p><strong>total of {total} exercises</strong></p>;
+};
 
 export default Content
