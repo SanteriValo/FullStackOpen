@@ -3,9 +3,10 @@ import Person from "./components/Person";
 
 const App = () => {
     const [persons, setPersons] = useState([
-        {name: 'Arto Hellas'}
+        {name: 'Arto Hellas', number: '040-1234567'}
     ])
     const [newName, setNewName] = useState('')
+    const [newNumber, setNewNumber] = useState('')
 
     const addNote = (event) => {
         event.preventDefault()
@@ -15,14 +16,20 @@ const App = () => {
         if (nameAlreadyInTheList) {
             alert(`${newName} is already added to phonebook`)
         } else {
-            setPersons(persons.concat({name: newName}))
+            setPersons(persons.concat({name: newName, number: newNumber}))
             setNewName('')
+            setNewNumber('')
         }
     }
 
     const handleAddName = (event) => {
         setNewName(event.target.value)
     }
+
+    const handleAddNumber = (event) => {
+        setNewNumber(event.target.value)
+    }
+
     return (
         <div>
             <h2>Phonebook</h2>
@@ -31,6 +38,12 @@ const App = () => {
                     name: <input
                     value={newName}
                     onChange={handleAddName}
+                />
+                </div>
+                <div>
+                    number: <input
+                    value={newNumber}
+                    onChange={handleAddNumber}
                 />
                 </div>
                 <div>
