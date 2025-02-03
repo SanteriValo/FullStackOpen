@@ -1,8 +1,8 @@
 import {useState, useEffect} from "react";
-import axios from "axios";
 import AddNewForm from "./components/AddNewForm.jsx";
 import NameFilter from "./components/NameFilter.jsx";
 import Numbers from "./components/Numbers.jsx";
+import BackendCommunicator from "./components/BackendCommunicator.jsx";
 
 const App = () => {
     const [persons, setPersons] = useState([]);
@@ -11,7 +11,7 @@ const App = () => {
     const [filterName, setFilterName] = useState('')
 
     useEffect(() => {
-        axios.get('http://localhost:3001/persons')
+        BackendCommunicator.getAllPersons()
             .then((response) => {
                 setPersons(response.data);
             })
@@ -26,8 +26,7 @@ const App = () => {
             alert(`${newName} is already added to phonebook`)
         } else {
             const newPerson = {name: newName, number: newNumber}
-            axios
-                .post('http://localhost:3001/persons', newPerson)
+            BackendCommunicator.addPerson(newPerson)
                 .then((response) => {
                     setPersons(persons.concat(response.data));
                     setNewName('')
@@ -57,15 +56,15 @@ const App = () => {
                 handleFilter={handleFilter}
             />
             <AddNewForm
-                addNote = {addNote}
-                newName = {newName}
-                newNumber = {newNumber}
+                addNote={addNote}
+                newName={newName}
+                newNumber={newNumber}
                 handleAddName={handleAddName}
                 handleAddNumber={handleAddNumber}
 
             />
             <Numbers
-                filteredPersons ={filteredPersons}
+                filteredPersons={filteredPersons}
             />
         </div>
     )
