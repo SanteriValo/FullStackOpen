@@ -1,7 +1,7 @@
-const AddNewForm = (props) => {
+const HandleForms = (props) => {
     return (<div>
             <h2>add a new</h2>
-            <form onSubmit={props.addNote}>
+            <form onSubmit={props.addPerson}>
                 <div>
                     name: <input
                     value={props.newName}
@@ -17,12 +17,13 @@ const AddNewForm = (props) => {
                 <div>
                     <button type="submit">add</button>
                 </div>
+
             </form>
         </div>
     )
 }
 
-export default AddNewForm
+export default HandleForms
 
 
 

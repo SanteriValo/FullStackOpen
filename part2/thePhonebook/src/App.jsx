@@ -1,7 +1,7 @@
 import {useState, useEffect} from "react";
-import AddNewForm from "./components/AddNewForm.jsx";
+import HandleForms from "./components/HandleForms.jsx";
 import NameFilter from "./components/NameFilter.jsx";
-import Numbers from "./components/Numbers.jsx";
+import ListOfPersons from "./components/ListOfPersons.jsx";
 import BackendCommunicator from "./components/BackendCommunicator.jsx";
 
 const App = () => {
@@ -17,7 +17,7 @@ const App = () => {
             })
     }, []);
 
-    const addNote = (event) => {
+    const addPerson = (event) => {
         event.preventDefault()
 
         const nameAlreadyInTheList = persons.some(person => person.name === newName);
@@ -55,16 +55,17 @@ const App = () => {
                 filterName={filterName}
                 handleFilter={handleFilter}
             />
-            <AddNewForm
-                addNote={addNote}
+            <HandleForms
+                addPerson={addPerson}
                 newName={newName}
                 newNumber={newNumber}
                 handleAddName={handleAddName}
                 handleAddNumber={handleAddNumber}
-
             />
-            <Numbers
+            <ListOfPersons
                 filteredPersons={filteredPersons}
+                setPersons = {setPersons}
+                persons = {persons}
             />
         </div>
     )
