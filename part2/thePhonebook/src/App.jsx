@@ -1,7 +1,7 @@
 import {useState, useEffect} from "react";
 import HandleForms from "./components/HandleForms.jsx";
 import NameFilter from "./components/NameFilter.jsx";
-import ListOfPersons from "./components/ListOfPersons.jsx";
+import Numbers from "./components/Numbers.jsx";
 import BackendCommunicator from "./components/BackendCommunicator.jsx";
 
 const App = () => {
@@ -62,7 +62,7 @@ const App = () => {
                 handleAddName={handleAddName}
                 handleAddNumber={handleAddNumber}
             />
-            <ListOfPersons
+            <Numbers
                 filteredPersons={filteredPersons}
                 setPersons = {setPersons}
                 persons = {persons}

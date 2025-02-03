@@ -1,7 +1,7 @@
 import Person from "./Person.jsx";
 import BackendCommunicator from "./BackendCommunicator.jsx";
 
-const ListOfPersons = (props) => {
+const Numbers = (props) => {
     const handleRemove = (id, name) => {
         const confirmRemove = window.confirm(`Delete ${name}?`)
 
@@ -31,4 +31,4 @@ const ListOfPersons = (props) => {
     )
 }
 
-export default ListOfPersons
+export default Numbers
