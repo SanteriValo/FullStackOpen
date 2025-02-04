@@ -23,17 +23,28 @@ const App = () => {
         const nameAlreadyInTheList = persons.some(person => person.name === newName);
 
         if (nameAlreadyInTheList) {
-            alert(`${newName} is already added to phonebook`)
+            const confirmUpdate = window.confirm(`${newName} is already added to phonebook. Replace the old number with the new one?`);
+
+            if (confirmUpdate) {
+                const person = persons.find(person => person.name === newName);
+                const updatedPerson = { ...person, number: newNumber };
+                BackendCommunicator.updatePerson(person.id, updatedPerson)
+                    .then((response) => {
+                        setPersons(persons.map(p => p.id !== person.id ? p : response.data));
+                        setNewName('');
+                        setNewNumber('');
+                    });
+            }
         } else {
-            const newPerson = {name: newName, number: newNumber}
+            const newPerson = { name: newName, number: newNumber };
             BackendCommunicator.addPerson(newPerson)
                 .then((response) => {
                     setPersons(persons.concat(response.data));
-                    setNewName('')
-                    setNewNumber('')
-                })
+                    setNewName('');
+                    setNewNumber('');
+                });
         }
-    }
+    };
 
     const handleAddName = (event) => {
         setNewName(event.target.value)
