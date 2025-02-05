@@ -10,7 +10,8 @@ const App = () => {
     const [newName, setNewName] = useState('')
     const [newNumber, setNewNumber] = useState('')
     const [filterName, setFilterName] = useState('')
-    const [addPersonMessage, setAddPersonMessage] = useState(null)
+    const [notificationMessage, setNotificationMessage] = useState(null)
+    const [isError, setIsError] = useState(false);
 
     useEffect(() => {
         BackendCommunicator.getAllPersons()
@@ -35,7 +36,14 @@ const App = () => {
                         setPersons(persons.map(p => p.id !== person.id ? p : response.data));
                         setNewName('');
                         setNewNumber('');
-                    });
+                    })
+                    .catch((error) => {
+                        if (error.response && error.response.status === 404) {
+                            setNotificationMessage(`Information of '${newName}' was already removed from the server.`)
+                            setIsError(true);
+                            setTimeout(() => setNotificationMessage(null), 5000);
+                        }
+                    })
             }
         } else {
             const newPerson = { name: newName, number: newNumber };
@@ -45,8 +53,9 @@ const App = () => {
                     setNewName('');
                     setNewNumber('');
 
-                    setAddPersonMessage(`Added ${newPerson.name}`);
-                    setTimeout(() => setAddPersonMessage(null), 5000)
+                    setNotificationMessage(`Added ${newPerson.name}`);
+                    setIsError(false);
+                    setTimeout(() => setNotificationMessage(null), 5000)
                 });
         }
     };
@@ -68,7 +77,7 @@ const App = () => {
     return (
         <div>
             <h2>Phonebook</h2>
-            <Notification message={addPersonMessage}/>
+            <Notification message={notificationMessage} isError={isError}/>
             <NameFilter
                 filterName={filterName}
                 handleFilter={handleFilter}
