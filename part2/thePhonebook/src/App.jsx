@@ -3,12 +3,14 @@ import HandleForms from "./components/HandleForms.jsx";
 import NameFilter from "./components/NameFilter.jsx";
 import Numbers from "./components/Numbers.jsx";
 import BackendCommunicator from "./components/BackendCommunicator.jsx";
+import Notification from "./components/Notification.jsx";
 
 const App = () => {
     const [persons, setPersons] = useState([]);
     const [newName, setNewName] = useState('')
     const [newNumber, setNewNumber] = useState('')
     const [filterName, setFilterName] = useState('')
+    const [addPersonMessage, setAddPersonMessage] = useState(null)
 
     useEffect(() => {
         BackendCommunicator.getAllPersons()
@@ -42,6 +44,9 @@ const App = () => {
                     setPersons(persons.concat(response.data));
                     setNewName('');
                     setNewNumber('');
+
+                    setAddPersonMessage(`Added ${newPerson.name}`);
+                    setTimeout(() => setAddPersonMessage(null), 5000)
                 });
         }
     };
@@ -62,6 +67,8 @@ const App = () => {
 
     return (
         <div>
+            <h2>Phonebook</h2>
+            <Notification message={addPersonMessage}/>
             <NameFilter
                 filterName={filterName}
                 handleFilter={handleFilter}
@@ -75,8 +82,8 @@ const App = () => {
             />
             <Numbers
                 filteredPersons={filteredPersons}
-                setPersons = {setPersons}
-                persons = {persons}
+                setPersons={setPersons}
+                persons={persons}
             />
         </div>
     )
