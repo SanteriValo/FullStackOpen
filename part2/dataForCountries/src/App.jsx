@@ -4,11 +4,13 @@ function App() {
     const [countries, setCountries] = useState([])
     const [query, setQuery] = useState('')
     const [message, setMessage] = useState('')
+    const [selectedCountry, setSelectedCountry] = useState(null)
 
     useEffect(() => {
         if (query === '') {
             setCountries([]);
             setMessage('');
+            setSelectedCountry(null)
             return;
         }
 
@@ -19,6 +21,7 @@ function App() {
                     country.name.common.toLowerCase().includes(query.toLowerCase())
                 );
                 setCountries(filteredCountries)
+                setSelectedCountry(null)
 
                 if (filteredCountries.length > 10) {
                     setMessage('Too many matches, specify another filter')
@@ -44,9 +47,13 @@ function App() {
                 {Object.values(country.languages).map(lang => (
                     <p key={lang}>{lang}</p>
                 ))}
-                <img src={country.flags.svg} alt="Flag of country" width="100"/>
+                <img src={country.flags.svg} alt="Flag of country" width="140"/>
             </div>
         )
+    }
+
+    const showCountry = (country) => {
+        setSelectedCountry(country);
     }
 
     return (
@@ -55,12 +62,14 @@ function App() {
 
             {message && <p>{message}</p>}
 
-            {countries.length === 1 && showCountries(countries[0])}
+            {selectedCountry && showCountries(selectedCountry)}
 
             {countries.length > 1 && countries.length <= 10 && (
                 <ul>
                     {countries.map(country => (
-                        <li key={country.name.common}>{country.name.common}</li>
+                        <li key={country.name.common}>{country.name.common}
+                        <button onClick={() => showCountry(country)}>show</button>
+                        </li>
                     ))}
                 </ul>
             )}
