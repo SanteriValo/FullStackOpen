@@ -5,6 +5,7 @@ function App() {
     const [query, setQuery] = useState('')
     const [message, setMessage] = useState('')
     const [selectedCountry, setSelectedCountry] = useState(null)
+    const [weather, setWeather] = useState(null)
 
     useEffect(() => {
         if (query === '') {
@@ -48,33 +49,63 @@ function App() {
                     <p key={lang}>{lang}</p>
                 ))}
                 <img src={country.flags.svg} alt="Flag of country" width="140"/>
+
+
+                {weather && (
+                    <div>
+                        <h3>Weather in {country.capital}</h3>
+                        <p>temperature {weather.temperature} Celsius</p>
+                        <img src={`http://openweathermap.org/img/wn/${weather.icon}.png`}
+                             alt="Weather description image" width="85"/>
+                    </div>
+                )}
             </div>
         )
     }
 
     const showCountry = (country) => {
         setSelectedCountry(country);
-    }
 
-    return (
-        <>
-            <input type="text" placeholder="Search by country" value={query} onChange={handleChange}/>
+        const lat = country.latlng[0]
+        const lon = country.latlng[1]
 
-            {message && <p>{message}</p>}
+        const api_key = import.meta.env.VITE_SOME_KEY;
 
-            {selectedCountry && showCountries(selectedCountry)}
+        fetch(`https://api.openweathermap.org/data/2.5/weather?lat=${lat}&lon=${lon}&appid=${api_key}`)
+            .then(response => {
+                return response.json();
+            })
+            .then(data => {
+                console.log('weather data:', data)
+                if (data.main) {
+                    setWeather({
+                        temperature: (data.main.temp - 273.15).toFixed(1),
+                        icon: data.weather[0].icon,
+                        description: data.weather[0].description,
+                    })
+                }
+    })
+}
 
-            {countries.length > 1 && countries.length <= 10 && (
-                <ul>
-                    {countries.map(country => (
-                        <li key={country.name.common}>{country.name.common}
+return (
+    <>
+        <input type="text" placeholder="Search by country" value={query} onChange={handleChange}/>
+
+        {message && <p>{message}</p>}
+
+        {selectedCountry && showCountries(selectedCountry)}
+
+        {countries.length > 1 && countries.length <= 10 && (
+            <ul>
+                {countries.map(country => (
+                    <li key={country.name.common}>{country.name.common}
                         <button onClick={() => showCountry(country)}>show</button>
-                        </li>
-                    ))}
-                </ul>
-            )}
-        </>
-    )
+                    </li>
+                ))}
+            </ul>
+        )}
+    </>
+)
 }
 
 export default App
