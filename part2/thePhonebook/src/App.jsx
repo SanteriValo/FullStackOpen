@@ -46,7 +46,7 @@ const App = () => {
                     setNewNumber('');
 
                     setAddPersonMessage(`Added ${newPerson.name}`);
-                    setTimeout(() => setAddPersonMessage(null), 5000)
+                    //setTimeout(() => setAddPersonMessage(null), 5000)
                 });
         }
     };
