@@ -1,7 +1,9 @@
 const express = require('express');
 const morgan = require('morgan')
+const cors = require('cors')
 const app = express();
 
+app.use(cors());
 app.use(express.json());
 morgan.token('body', (req) => JSON.stringify(req.body));
 app.use(morgan(':method :url :status :res[content-length] - :response-time ms :body', {
@@ -28,7 +30,7 @@ let phones = [
         "id": "4",
         "name": "Mary Poppendieck",
         "number": "39-23-6423122"
-    }
+    },
 ]
 
 app.get('/', (request, response) => {
