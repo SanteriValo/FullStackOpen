@@ -124,6 +124,7 @@ const unknownEndpoint = (request, response) => {
 };
 
 app.use(unknownEndpoint);
+
 app.use(errorHandler);
 
 const PORT = process.env.PORT || 3000
