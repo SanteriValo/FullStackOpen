@@ -3,6 +3,7 @@ const morgan = require('morgan')
 const cors = require('cors')
 const app = express();
 const {connectToDatabase, Person} = require('./models/database');
+const errorHandler = require('./models/errorHandler');
 
 const password = process.argv[2];
 const name = process.argv[3];
@@ -81,14 +82,12 @@ app.post('/api/persons', async (request, response, next) => {
         const {name, number} = request.body
 
         if (!name || !number) {
-            return response.status(400).json({
-                error: 'The name or number is missing'
-            })
+            return next(new Error( 'The name or number is missing'));
         }
 
         const nameExists = await Person.findOne({name})
         if (nameExists) {
-            return response.status(400).json({error: 'Name must be unique'})
+            return next (new Error('Name must be unique'));
         }
 
         const person = new Person({name, number});
@@ -98,8 +97,14 @@ app.post('/api/persons', async (request, response, next) => {
     } catch (error) {
         next(error);
     }
-
 })
+
+const unknownEndpoint = (request, response) => {
+    response.status(404).send({error: 'unknown endpoint'});
+};
+
+app.use(unknownEndpoint);
+app.use(errorHandler);
 
 const PORT = process.env.PORT || 3000
 app.listen(PORT)
