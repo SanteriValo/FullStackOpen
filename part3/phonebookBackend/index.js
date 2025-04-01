@@ -99,6 +99,26 @@ app.post('/api/persons', async (request, response, next) => {
     }
 })
 
+app.put('/api/persons/:id', async(request, response, next) => {
+    const{name, number} = request.body;
+
+    try {
+        const updatedPersons = await Person.findByIdAndUpdate(
+            request.params.id,
+            {name, number},
+            {new: true, runValidators: true}
+        );
+
+        if (updatedPersons) {
+            response.json(updatedPersons);
+        } else {
+            response.status(404).end();
+        }
+    } catch (error) {
+        next(error);
+    }
+});
+
 const unknownEndpoint = (request, response) => {
     response.status(404).send({error: 'unknown endpoint'});
 };
