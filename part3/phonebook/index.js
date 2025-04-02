@@ -5,10 +5,6 @@ const app = express();
 const {connectToDatabase, Person} = require('./models/database');
 const errorHandler = require('./models/errorHandler');
 
-const password = process.argv[2];
-const name = process.argv[3];
-const number = process.argv[4];
-
 app.use(cors());
 app.use(express.json());
 app.use(express.static('dist'))
@@ -17,6 +13,8 @@ app.use(morgan(':method :url :status :res[content-length] - :response-time ms :b
     skip: (req) => req.method === "GET"
 }));
 
+const password = process.env.MONGODB_PASSWORD;
+
 if (!password) {
     console.log("No password");
     process.exit(1);
@@ -24,18 +22,7 @@ if (!password) {
 
 connectToDatabase(password)
     .then(() => {
-        if (name && number) {
-            const person = new Person({ name, number });
-            person.save().then(() => {
-                console.log(`Added ${name} number ${number} to the phonebook`);
-            });
-        } else {
-            Person.find({}).then(persons => {
-                persons.forEach(person => {
-                    console.log(`${person.name} ${person.number}`);
-                });
-            });
-        }
+        console.log('Connected to Database');
     })
     .catch(err => {
         console.error('Failed to connect to MongoDB:', err);
