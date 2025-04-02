@@ -1,0 +1,33 @@
+body {
+    min-width: 500px;
+}
+
+.error {
+    margin: 0 15px 15px 0;
+    padding: 10px;
+    background-color: darkgray;
+    border: 3px solid darkred;
+    color: darkred;
+    font-size: medium;
+    min-width: 200px;
+    width: auto;
+    max-width: 18%;
+    height: auto;
+    white-space: normal;
+    word-wrap: break-word;
+}
+
+.success {
+    margin: 0 15px 15px 0;
+    padding: 10px;
+    background-color: darkgray;
+    border: 3px solid darkgreen;
+    color: darkgreen;
+    font-size: medium;
+    min-width: 200px;
+    width: auto;
+    max-width: 18%;
+    height: auto;
+    white-space: normal;
+    word-wrap: break-word;
+}
