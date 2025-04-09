@@ -1,9 +1,9 @@
-const { test, describe } = require('node:test')
+const {test, describe} = require('node:test')
 const assert = require('node:assert')
 const listHelper = require('../utils/list_helper')
 
 
-describe('total likes', () => {
+describe('favorite blog', () => {
     const emptyList = []
 
     const listWithOneBlog = [
@@ -68,19 +68,29 @@ describe('total likes', () => {
         }
     ]
 
-    test('of empty list is zero', () => {
-        const result = listHelper.totalLikes(emptyList)
-        assert.strictEqual(result, 0)
-    })
+    test('when list is empty, returns null', () => {
+        const result = listHelper.favoriteBlog(emptyList);
+        assert.strictEqual(result, null, 'Favorite blog of empty list should be null')
+    });
 
-    test('when list has only one blog, equals the likes of that', () => {
-        const result = listHelper.totalLikes(listWithOneBlog)
-        assert.strictEqual(result, 5)
-    })
+    test('when list has only one blog, returns that blog', () => {
+        const result = listHelper.favoriteBlog(listWithOneBlog);
+        assert.deepStrictEqual(result, listWithOneBlog[0], 'Favorite blog with one blog should be that blog');
+    });
 
-    test('of a bigger list is calculated right', () => {
-        const result = listHelper.totalLikes(listOfBlogs)
-        assert.strictEqual(result, 36)
-    })
-})
+    test('when list has many blogs, returns the one with most likes', () => {
+        const result = listHelper.favoriteBlog(listOfBlogs)
+        assert.deepStrictEqual(result,
+            {
+                _id: "5a422b3a1b54a676234d17f9",
+                title: "Canonical string reduction",
+                author: "Edsger W. Dijkstra",
+                url: "http://www.cs.utexas.edu/~EWD/transcriptions/EWD08xx/EWD808.html",
+                likes: 12,
+                __v: 0
+            },
+            'Favorite blog should be the one with 12 likes'
+        );
+    });
+});
 
