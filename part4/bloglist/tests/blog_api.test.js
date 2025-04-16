@@ -126,6 +126,25 @@ async function runTests() {
             .expect(400);
         console.log('Test passed: Missing url returns 400 Bad Request');
 
+        console.log('Testing DELETE request to /api/blogs/:id...');
+        const blogToDelete = await api
+            .post('/api/blogs')
+            .send(newBlog)
+            .expect(201);
+        const blogsBeforeDelete = await Blog.find({});
+        await api
+            .delete(`/api/blogs/${blogToDelete.body.id}`)
+            .expect(204);
+        const blogsAfterDelete = await Blog.find({});
+        if (blogsAfterDelete.length !== blogsBeforeDelete.length - 1) {
+            throw new Error(`Expected ${blogsBeforeDelete.length - 1} blogs after DELETE, but got ${blogsAfterDelete.length}`);
+        }
+        const deletedBlog = await Blog.findById(blogToDelete.body.id);
+        if (deletedBlog) {
+            throw new Error('Blog was not deleted');
+        }
+        console.log('Test passed: DELETE request successfully removes a blog');
+
         await mongoose.connection.close();
     } catch (error) {
         console.error('Test failed:', error.message);

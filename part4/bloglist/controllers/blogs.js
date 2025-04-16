@@ -12,12 +12,11 @@ const getAllBlogs = async (req, res) => {
 const createBlog = async (req, res) => {
     try {
         const { title, author, url, likes } = req.body;
-
         const blog = new Blog({
             title,
             author,
             url,
-            likes: likes === undefined ? 0 : likes,
+            likes,
         });
         const savedBlog = await blog.save();
         res.status(201).json(savedBlog);
@@ -29,7 +28,23 @@ const createBlog = async (req, res) => {
     }
 };
 
+const deleteBlog = async (req, res) => {
+    try {
+        console.log('Deleting blog with ID:', req.params.id);
+        const blog = await Blog.findByIdAndDelete(req.params.id);
+        console.log('Deleted blog:', blog);
+        if (!blog) {
+            return res.status(404).json({ error: 'blog not found' });
+        }
+        res.status(204).end();
+    } catch (error) {
+        console.error('Error in deleteBlog:', error);
+        res.status(400).json({ error: 'invalid id' });
+    }
+};
+
 module.exports = {
     getAllBlogs,
     createBlog,
+    deleteBlog,
 }
