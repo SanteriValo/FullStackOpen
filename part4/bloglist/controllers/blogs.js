@@ -9,12 +9,15 @@ const getAllBlogs = async (req, res) => {
     }
 };
 
-const createBlog = (req, res) => {
-    const blog = new Blog(req.body)
-    blog.save().then((result) => {
-        res.status(201).json(result)
-    })
-}
+const createBlog = async (req, res) => {
+    try {
+        const blog = new Blog(req.body);
+        const savedBlog = await blog.save();
+        res.status(201).json(savedBlog);
+    } catch (error) {
+        res.status(400).json({error: 'failed to save blog'});
+    }
+};
 
 module.exports = {
     getAllBlogs,

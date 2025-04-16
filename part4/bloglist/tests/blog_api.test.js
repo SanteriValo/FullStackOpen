@@ -60,6 +60,33 @@ async function runTests() {
         });
         console.log('Test passed: Blog identifier is named id');
 
+        console.log('Testing POST request to /api/blogs...');
+
+        const newBlog = {
+            title: 'Test Blog Title',
+            author: 'Test Author ',
+            url: 'https://testblog.com/',
+            likes: 93,
+        };
+
+        const postResponse = await api
+            .post('/api/blogs')
+            .send(newBlog)
+            .expect(201)
+            .expect('Content-Type', /application\/json/);
+
+        const blogsAfterPost = await Blog.find({});
+        if (blogsAfterPost.length !== initialBlogs.length + 1) {
+            throw new Error(`Expected ${initialBlogs.length + 1} blogs after POST, but got ${blogsAfterPost.length}`);
+        }
+
+        const titles = blogsAfterPost.map(blog => blog.title);
+        if (!titles.includes(newBlog.title)) {
+            throw new Error(`Blog with title "${newBlog.title}" was not found in database`);
+        }
+
+        console.log('Test passed: POST request successfully creates a new blog');
+
         await mongoose.connection.close();
 
     } catch (error) {
