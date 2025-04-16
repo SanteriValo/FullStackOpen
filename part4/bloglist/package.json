@@ -4,16 +4,21 @@
   "description": "Blog List. Part 4 of the Full Stack Open course",
   "main": "index.js",
   "scripts": {
-    "start": "node index.js",
-    "dev": "node --watch index.js",
-    "test": "node --test"
+    "start": "cross-env NODE_ENV=production node index.js",
+    "dev": "cross-env NODE_ENV=development node --watch index.js",
+    "test": "cross-env NODE_ENV=test node tests/blog_api.test.js",
+    "lint": "eslint ."
   },
   "author": "Aleksandr Valov",
   "license": "MIT",
   "dependencies": {
+    "cross-env": "^7.0.3",
     "dotenv": "^16.4.7",
     "express": "^5.1.0",
     "lodash": "^4.17.21",
     "mongoose": "^8.13.2"
+  },
+  "devDependencies": {
+    "supertest": "^7.1.0"
   }
 }
