@@ -145,6 +145,33 @@ async function runTests() {
         }
         console.log('Test passed: DELETE request successfully removes a blog');
 
+        console.log('Testing PUT request to /api/blogs/:id...');
+        const blogToUpdate = await api
+            .post('/api/blogs')
+            .send(newBlog)
+            .expect(201);
+        const updatedData = {
+            likes: blogToUpdate.body.likes + 1
+        };
+        const updatedResponse = await api
+            .put(`/api/blogs/${blogToUpdate.body.id}`)
+            .send(updatedData)
+            .expect(200)
+            .expect('Content-Type', /application\/json/);
+        if (updatedResponse.body.likes !== updatedData.likes) {
+            throw new Error(`Expected likes to be ${updatedData.likes}, but got ${updatedResponse.body.likes}`);
+        }
+        if (updatedResponse.body.title !== newBlog.title) {
+            throw new Error(`Expected title to remain ${newBlog.title}, but got ${updatedResponse.body.title}`);
+        }
+        if (updatedResponse.body.author !== newBlog.author) {
+            throw new Error(`Expected author to remain ${newBlog.author}, but got ${updatedResponse.body.author}`);
+        }
+        if (updatedResponse.body.url !== newBlog.url) {
+            throw new Error(`Expected url to remain ${newBlog.url}, but got ${updatedResponse.body.url}`);
+        }
+        console.log('Test passed: PUT request successfully updates blog likes');
+
         await mongoose.connection.close();
     } catch (error) {
         console.error('Test failed:', error.message);

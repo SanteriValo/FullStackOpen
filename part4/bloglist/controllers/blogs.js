@@ -43,8 +43,28 @@ const deleteBlog = async (req, res) => {
     }
 };
 
+const updateBlog = async (req, res) => {
+    try {
+        const updatedBlog = await Blog.findByIdAndUpdate(
+            req.params.id,
+            { $set: req.body },
+            { new: true, runValidators: true }
+        );
+        if (!updatedBlog) {
+            return res.status(404).json({ error: 'blog not found' });
+        }
+        res.status(200).json(updatedBlog);
+    } catch (error) {
+        if (error.name === 'ValidationError') {
+            return res.status(400).json({ error: error.message });
+        }
+        res.status(400).json({ error: 'invalid id or data' });
+    }
+};
+
 module.exports = {
     getAllBlogs,
     createBlog,
     deleteBlog,
+    updateBlog,
 }
