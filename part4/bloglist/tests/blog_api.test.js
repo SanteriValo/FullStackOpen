@@ -21,12 +21,6 @@ const initialBlogs = [
     },
 ];
 
-const blogWithoutLikes = {
-    title: 'No Likes Blog',
-    author: 'Unhappy Author',
-    url: 'https://sadness.com/',
-}
-
 async function setup() {
     console.log('Setting up test database...');
     await mongoose.connect(config.MONGODB_URI);
@@ -67,10 +61,9 @@ async function runTests() {
         console.log('Test passed: Blog identifier is named id');
 
         console.log('Testing POST request to /api/blogs...');
-
         const newBlog = {
             title: 'Test Blog Title',
-            author: 'Test Author ',
+            author: 'Test Author',
             url: 'https://testblog.com/',
             likes: 93,
         };
@@ -90,10 +83,14 @@ async function runTests() {
         if (!titles.includes(newBlog.title)) {
             throw new Error(`Blog with title "${newBlog.title}" was not found in database`);
         }
-
         console.log('Test passed: POST request successfully creates a new blog');
 
         console.log('Testing POST request for blog without likes...');
+        const blogWithoutLikes = {
+            title: 'No Likes Blog',
+            author: 'Unhappy Author',
+            url: 'https://sadness.com/',
+        };
         const postResponse2 = await api
             .post('/api/blogs')
             .send(blogWithoutLikes)
@@ -103,11 +100,33 @@ async function runTests() {
         if (postResponse2.body.likes !== 0) {
             throw new Error(`Expected likes to default to 0, but got ${postResponse2.body.likes}`);
         }
-
         console.log('Test passed: Blog without likes defaults to 0');
 
-        await mongoose.connection.close();
+        console.log('Testing POST request with missing title...');
+        const blogWithoutTitle = {
+            author: 'Test Author',
+            url: 'https://notitle.com/',
+            likes: 5,
+        };
+        await api
+            .post('/api/blogs')
+            .send(blogWithoutTitle)
+            .expect(400);
+        console.log('Test passed: Missing title returns 400 Bad Request');
 
+        console.log('Testing POST request with missing url...');
+        const blogWithoutUrl = {
+            title: 'No URL Blog',
+            author: 'Test Author',
+            likes: 5,
+        };
+        await api
+            .post('/api/blogs')
+            .send(blogWithoutUrl)
+            .expect(400);
+        console.log('Test passed: Missing url returns 400 Bad Request');
+
+        await mongoose.connection.close();
     } catch (error) {
         console.error('Test failed:', error.message);
         console.error('Full error:', error);
