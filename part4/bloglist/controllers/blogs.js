@@ -11,11 +11,21 @@ const getAllBlogs = async (req, res) => {
 
 const createBlog = async (req, res) => {
     try {
-        const blog = new Blog(req.body);
+        const { title, author, url, likes } = req.body;
+
+        const blog = new Blog({
+            title,
+            author,
+            url,
+            likes: likes === undefined ? 0 : likes,
+        });
         const savedBlog = await blog.save();
         res.status(201).json(savedBlog);
     } catch (error) {
-        res.status(400).json({error: 'failed to save blog'});
+        if (error.name === 'ValidationError') {
+            return res.status(400).json({ error: error.message });
+        }
+        res.status(400).json({ error: 'failed to save blog' });
     }
 };
 

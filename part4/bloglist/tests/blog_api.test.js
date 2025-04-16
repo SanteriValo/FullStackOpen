@@ -21,6 +21,12 @@ const initialBlogs = [
     },
 ];
 
+const blogWithoutLikes = {
+    title: 'No Likes Blog',
+    author: 'Unhappy Author',
+    url: 'https://sadness.com/',
+}
+
 async function setup() {
     console.log('Setting up test database...');
     await mongoose.connect(config.MONGODB_URI);
@@ -86,6 +92,19 @@ async function runTests() {
         }
 
         console.log('Test passed: POST request successfully creates a new blog');
+
+        console.log('Testing POST request for blog without likes...');
+        const postResponse2 = await api
+            .post('/api/blogs')
+            .send(blogWithoutLikes)
+            .expect(201)
+            .expect('Content-Type', /application\/json/);
+
+        if (postResponse2.body.likes !== 0) {
+            throw new Error(`Expected likes to default to 0, but got ${postResponse2.body.likes}`);
+        }
+
+        console.log('Test passed: Blog without likes defaults to 0');
 
         await mongoose.connection.close();
 
