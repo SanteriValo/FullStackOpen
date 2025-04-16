@@ -43,11 +43,25 @@ async function runTests() {
             .expect(200)
             .expect('Content-Type', /application\/json/);
         console.log('Response body:', response.body);
+
         if (response.body.length !== initialBlogs.length) {
             throw new Error(`Expected ${initialBlogs.length} blogs, but got ${response.body.length}`);
         }
         console.log('Test passed: Correct amount of blogs returned in JSON format');
+
+        console.log('Checking if blog identifier is named id...');
+        response.body.forEach(blog => {
+            if (!blog.id) {
+                throw new Error('Blog id is missing');
+            }
+            if (blog._id) {
+                throw new Error('Blog identifier _id should not be present');
+            }
+        });
+        console.log('Test passed: Blog identifier is named id');
+
         await mongoose.connection.close();
+
     } catch (error) {
         console.error('Test failed:', error.message);
         console.error('Full error:', error);
