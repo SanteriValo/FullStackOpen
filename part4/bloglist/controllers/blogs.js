@@ -1,70 +1,52 @@
-const Blog = require('../models/blog')
+const blogsRouter = require('express').Router();
+const Blog = require('../models/blog');
+const User = require('../models/user');
 
-const getAllBlogs = async (req, res) => {
-    try {
-        const blogs = await Blog.find({});
-        res.json(blogs);
-    } catch (error) {
-        res.status(500).json({ error: 'something went wrong'});
+blogsRouter.get('/', async (request, response) => {
+    const blogs = await Blog.find({}).populate('user', { username: 1, name: 1 });
+    response.json(blogs);
+});
+
+blogsRouter.post('/', async (request, response) => {
+    const body = request.body;
+
+    const user = await User.findOne({});
+    if (!user) {
+        return response.status(400).json({ error: 'no users found in database' });
     }
-};
 
-const createBlog = async (req, res) => {
-    try {
-        const { title, author, url, likes } = req.body;
-        const blog = new Blog({
-            title,
-            author,
-            url,
-            likes,
-        });
-        const savedBlog = await blog.save();
-        res.status(201).json(savedBlog);
-    } catch (error) {
-        if (error.name === 'ValidationError') {
-            return res.status(400).json({ error: error.message });
-        }
-        res.status(400).json({ error: 'failed to save blog' });
-    }
-};
+    const blog = new Blog({
+        title: body.title,
+        author: body.author,
+        url: body.url,
+        likes: body.likes || 0,
+        user: user._id
+    });
 
-const deleteBlog = async (req, res) => {
-    try {
-        console.log('Deleting blog with ID:', req.params.id);
-        const blog = await Blog.findByIdAndDelete(req.params.id);
-        console.log('Deleted blog:', blog);
-        if (!blog) {
-            return res.status(404).json({ error: 'blog not found' });
-        }
-        res.status(204).end();
-    } catch (error) {
-        console.error('Error in deleteBlog:', error);
-        res.status(400).json({ error: 'invalid id' });
-    }
-};
+    const savedBlog = await blog.save();
+    user.blogs = user.blogs.concat(savedBlog._id);
+    await user.save();
 
-const updateBlog = async (req, res) => {
-    try {
-        const updatedBlog = await Blog.findByIdAndUpdate(
-            req.params.id,
-            { $set: req.body },
-            { new: true, runValidators: true }
-        );
-        if (!updatedBlog) {
-            return res.status(404).json({ error: 'blog not found' });
-        }
-        res.status(200).json(updatedBlog);
-    } catch (error) {
-        if (error.name === 'ValidationError') {
-            return res.status(400).json({ error: error.message });
-        }
-        res.status(400).json({ error: 'invalid id or data' });
-    }
-};
+    response.status(201).json(savedBlog);
+});
 
-module.exports = {
-    getAllBlogs,
-    createBlog,
-    deleteBlog,
-    updateBlog,
-}
+blogsRouter.delete('/:id', async (request, response) => {
+    await Blog.findByIdAndDelete(request.params.id);
+    response.status(204).end();
+});
+
+blogsRouter.put('/:id', async (request, response) => {
+    const body = request.body;
+
+    const blog = {
+        title: body.title,
+        author: body.author,
+        url: body.url,
+        likes: body.likes
+    };
+
+    const updatedBlog = await Blog.findByIdAndUpdate(request.params.id, blog, { new: true });
+    response.json(updatedBlog);
+});
+
+module.exports = blogsRouter;

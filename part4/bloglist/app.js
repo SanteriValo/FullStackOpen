@@ -1,17 +1,13 @@
-const express = require('express')
-const blogController = require("./controllers/blogs");
-const userController = require("./controllers/users");
+const express = require('express');
 const app = express();
+const cors = require('cors');
+const blogsRouter = require('./controllers/blogs');
+const usersRouter = require('./controllers/users');
 
+app.use(cors());
 app.use(express.json());
 
-app.get('/api/blogs', blogController.getAllBlogs);
-app.post('/api/blogs', blogController.createBlog);
-app.delete('/api/blogs/:id', blogController.deleteBlog);
-app.put('/api/blogs/:id', blogController.updateBlog);
-
-app.post('/api/users', userController.createUser);
-app.get('/api/users', userController.getAllUsers);
-
+app.use('/api/blogs', blogsRouter);
+app.use('/api/users', usersRouter);
 
 module.exports = app;
