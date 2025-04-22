@@ -1,7 +1,9 @@
 const mongoose = require('mongoose');
 const supertest = require('supertest');
+const bcrypt = require('bcryptjs');
 const app = require('../app');
 const Blog = require('../models/blog');
+const User = require('../models/user');
 const config = require('../utils/config');
 
 const api = supertest(app);
@@ -27,16 +29,47 @@ async function setup() {
     console.log('Connected to MongoDB');
 
     await Blog.deleteMany({});
+    await User.deleteMany({});
     console.log('Database cleared');
-    await Blog.insertMany(initialBlogs);
+
+    const passwordHash = await bcrypt.hash('password123', 10);
+    const user = new User({
+        username: 'testuser',
+        name: 'Test User',
+        passwordHash,
+    });
+    await user.save();
+    console.log('Test user created:', user.username);
+
+    const loginResponse = await api
+        .post('/api/login')
+        .send({
+            username: 'testuser',
+            password: 'password123',
+        })
+        .expect(200);
+    const token = loginResponse.body.token;
+    console.log('Token received:', token);
+
+    const blogsWithUser = initialBlogs.map(blog => ({
+        ...blog,
+        user: user._id,
+    }));
+    await Blog.insertMany(blogsWithUser);
     console.log('Initial blogs inserted');
-    const blogsInDb = await Blog.find({});
+
+    const blogsInDb = await Blog.find({}).populate('user', { username: 1 });
     console.log('Blogs in database after setup:', blogsInDb);
+
+    return token;
 }
 
 async function runTests() {
+    let token;
+
     try {
-        await setup();
+        token = await setup();
+
         console.log('Sending GET request to /api/blogs...');
         const response = await api
             .get('/api/blogs')
@@ -70,11 +103,12 @@ async function runTests() {
 
         const postResponse = await api
             .post('/api/blogs')
+            .set('Authorization', `Bearer ${token}`)
             .send(newBlog)
             .expect(201)
             .expect('Content-Type', /application\/json/);
 
-        const blogsAfterPost = await Blog.find({});
+        const blogsAfterPost = await Blog.find({}).populate('user', { username: 1 });
         if (blogsAfterPost.length !== initialBlogs.length + 1) {
             throw new Error(`Expected ${initialBlogs.length + 1} blogs after POST, but got ${blogsAfterPost.length}`);
         }
@@ -93,6 +127,7 @@ async function runTests() {
         };
         const postResponse2 = await api
             .post('/api/blogs')
+            .set('Authorization', `Bearer ${token}`)
             .send(blogWithoutLikes)
             .expect(201)
             .expect('Content-Type', /application\/json/);
@@ -110,6 +145,7 @@ async function runTests() {
         };
         await api
             .post('/api/blogs')
+            .set('Authorization', `Bearer ${token}`)
             .send(blogWithoutTitle)
             .expect(400);
         console.log('Test passed: Missing title returns 400 Bad Request');
@@ -122,24 +158,45 @@ async function runTests() {
         };
         await api
             .post('/api/blogs')
+            .set('Authorization', `Bearer ${token}`)
             .send(blogWithoutUrl)
             .expect(400);
         console.log('Test passed: Missing url returns 400 Bad Request');
 
-        console.log('Testing DELETE request to /api/blogs/:id...');
-        const blogToDelete = await api
+        console.log('Testing POST request without token...');
+        const blogWithoutToken = {
+            title: 'Blog Without Token',
+            author: 'No Token Author',
+            url: 'https://notoken.com/',
+            likes: 1,
+        };
+        await api
             .post('/api/blogs')
+            .send(blogWithoutToken)
+            .expect(401)
+            .expect('Content-Type', /application\/json/);
+        const blogsAfterNoToken = await Blog.find({});
+        if (blogsAfterNoToken.length !== blogsAfterPost.length + 1) {
+            throw new Error(`Expected ${blogsAfterPost.length + 1} blogs after failed POST, but got ${blogsAfterNoToken.length}`);
+        }
+        console.log('Test passed: POST request without token returns 401 Unauthorized');
+
+        console.log('Testing DELETE request to /api/blogs/:id...');
+        const blogToDeleteResponse = await api
+            .post('/api/blogs')
+            .set('Authorization', `Bearer ${token}`)
             .send(newBlog)
             .expect(201);
         const blogsBeforeDelete = await Blog.find({});
         await api
-            .delete(`/api/blogs/${blogToDelete.body.id}`)
+            .delete(`/api/blogs/${blogToDeleteResponse.body.id}`)
+            .set('Authorization', `Bearer ${token}`)
             .expect(204);
         const blogsAfterDelete = await Blog.find({});
         if (blogsAfterDelete.length !== blogsBeforeDelete.length - 1) {
             throw new Error(`Expected ${blogsBeforeDelete.length - 1} blogs after DELETE, but got ${blogsAfterDelete.length}`);
         }
-        const deletedBlog = await Blog.findById(blogToDelete.body.id);
+        const deletedBlog = await Blog.findById(blogToDeleteResponse.body.id);
         if (deletedBlog) {
             throw new Error('Blog was not deleted');
         }
@@ -148,10 +205,11 @@ async function runTests() {
         console.log('Testing PUT request to /api/blogs/:id...');
         const blogToUpdate = await api
             .post('/api/blogs')
+            .set('Authorization', `Bearer ${token}`)
             .send(newBlog)
             .expect(201);
         const updatedData = {
-            likes: blogToUpdate.body.likes + 1
+            likes: blogToUpdate.body.likes + 1,
         };
         const updatedResponse = await api
             .put(`/api/blogs/${blogToUpdate.body.id}`)
