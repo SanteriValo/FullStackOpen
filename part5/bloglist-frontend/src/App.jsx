@@ -1,13 +1,19 @@
 import { useState, useEffect } from 'react'
 import Blog from './components/Blog'
-import BlogForm from './components/BlogForm'
-import LoginForm from './components/LoginForm'
 import blogService from './services/blogs'
 import loginService from './services/login'
+import LoginForm from './components/LoginForm'
+import BlogForm from './components/BlogForm'
+import Notification from './components/Notification'
 
 const App = () => {
-  const [user, setUser] = useState(null)
   const [blogs, setBlogs] = useState([])
+  const [user, setUser] = useState(null)
+  const [notification, setNotification] = useState(null)
+
+  useEffect(() => {
+    blogService.getAll().then(blogs => setBlogs(blogs))
+  }, [])
 
   useEffect(() => {
     const loggedUserJSON = window.localStorage.getItem('loggedBlogappUser')
@@ -15,56 +21,58 @@ const App = () => {
       const user = JSON.parse(loggedUserJSON)
       setUser(user)
       blogService.setToken(user.token)
-      blogService.getAll().then(blogs => setBlogs(blogs))
     }
   }, [])
+
+  const showNotification = (text, type = 'success', duration = 5000) => {
+    setNotification({ text, type })
+    setTimeout(() => {
+      setNotification(null)
+    }, duration)
+  }
 
   const handleLogin = async (username, password) => {
     try {
       const user = await loginService.login({ username, password })
-      window.localStorage.setItem('loggedBlogappUser', JSON.stringify(user))
-      blogService.setToken(user.token)
       setUser(user)
-      const blogs = await blogService.getAll()
-      setBlogs(blogs)
-    } catch (exception) {
-      alert('Wrong username or password')
+      blogService.setToken(user.token)
+      window.localStorage.setItem('loggedBlogappUser', JSON.stringify(user))
+      showNotification(`Welcome, ${user.username}`, 'success')
+    } catch {
+      showNotification('Wrong username or password', 'error')
     }
   }
 
   const handleLogout = () => {
-    window.localStorage.removeItem('loggedBlogappUser')
     setUser(null)
+    window.localStorage.removeItem('loggedBlogappUser')
+    showNotification('Logged out', 'success')
   }
 
-  const createBlog = async (blog) => {
+  const addBlog = async (blogObject) => {
     try {
-      const returnedBlog = await blogService.create(blog)
-      setBlogs(blogs.concat(returnedBlog))
-    } catch (exception) {
-      console.error('Error creating blog:', exception)
+      const newBlog = await blogService.create(blogObject)
+      setBlogs(blogs.concat(newBlog))
+      showNotification(`A new blog "${newBlog.title}" by ${newBlog.author} added`, 'success')
+    } catch (error) {
+      showNotification('Failed to add blog', 'error')
     }
-  }
-
-  if (!user) {
-    return (
-        <div>
-          <h2>Log in to application</h2>
-          <LoginForm handleLogin={handleLogin} />
-        </div>
-    )
   }
 
   return (
       <div>
-        <h2>blogs</h2>
-        <p>{user.name} logged in <button onClick={handleLogout}>logout</button></p>
-
-        <h2>Create new blog</h2>
-        <BlogForm createBlog={createBlog} />
-
-        {blogs.map(blog =>
-            <Blog key={blog.id} blog={blog} />
+        <h2>Blogs</h2>
+        <Notification message={notification} />
+        {user === null ? (
+            <LoginForm handleLogin={handleLogin} />
+        ) : (
+            <div>
+              <p>{user.username} logged in <button onClick={handleLogout}>logout</button></p>
+              <BlogForm createBlog={addBlog} />
+              {blogs.map(blog =>
+                  <Blog key={blog.id} blog={blog} />
+              )}
+            </div>
         )}
       </div>
   )

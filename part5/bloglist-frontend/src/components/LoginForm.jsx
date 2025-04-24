@@ -4,7 +4,7 @@ const LoginForm = ({ handleLogin }) => {
     const [username, setUsername] = useState('')
     const [password, setPassword] = useState('')
 
-    const onSubmit = (event) => {
+    const submit = (event) => {
         event.preventDefault()
         handleLogin(username, password)
         setUsername('')
@@ -12,24 +12,12 @@ const LoginForm = ({ handleLogin }) => {
     }
 
     return (
-        <form onSubmit={onSubmit}>
+        <form onSubmit={submit}>
             <div>
-                username
-                <input
-                    type="text"
-                    value={username}
-                    name="Username"
-                    onChange={({ target }) => setUsername(target.value)}
-                />
+                username <input type="text" value={username} onChange={({ target }) => setUsername(target.value)} />
             </div>
             <div>
-                password
-                <input
-                    type="password"
-                    value={password}
-                    name="Password"
-                    onChange={({ target }) => setPassword(target.value)}
-                />
+                password <input type="password" value={password} onChange={({ target }) => setPassword(target.value)} />
             </div>
             <button type="submit">login</button>
         </form>
