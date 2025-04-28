@@ -28,10 +28,14 @@ const Blog = ({blog, updateBlog}) => {
 
         try {
             const returnedBlog = await blogService.update(blog.id, updatedBlog)
-            setLikes(returnedBlog.likes)
-            updateBlog(returnedBlog)
+            const blogToUpdate = {
+                ...returnedBlog,
+                user: returnedBlog.user.username ? returnedBlog.user : blog.user
+            }
+            setLikes(blogToUpdate.likes)
+            updateBlog(blogToUpdate)
         } catch (error) {
-            log.error('Like error:', error)
+            console.error('Like error:', error)
         }
     }
 
@@ -45,7 +49,7 @@ const Blog = ({blog, updateBlog}) => {
                 <div>
                     <p>{blog.url}</p>
                     <p>likes: {blog.likes} <button onClick={handleLike}>like</button></p>
-                    <p>{blog.user.name}</p>
+                    <p>{blog.user.username}</p>
                 </div>
             )}
         </div>

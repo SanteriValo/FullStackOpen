@@ -52,17 +52,33 @@ blogsRouter.delete('/:id', middleware.userExtractor, async (request, response) =
 blogsRouter.put('/:id', async (request, response) => {
     const body = request.body;
 
+    const userId = typeof body.user === 'object' ? body.user.id || body.user._id : body.user;
+
     const blog = {
         title: body.title,
         author: body.author,
         url: body.url,
         likes: body.likes,
-        user: body.user
+        user: userId
     };
 
-    const updatedBlog = await Blog.findByIdAndUpdate(request.params.id, blog, { new: true })
-        .populate('user', { username: 1, name: 1 });
-    response.json(updatedBlog);
+    try {
+        console.log('Updating blog with ID:', request.params.id);
+        console.log('Update data:', blog);
+        const updatedBlog = await Blog.findByIdAndUpdate(request.params.id, blog, { new: true });
+        console.log('Updated blog before populate:', updatedBlog);
+        const populatedBlog = await updatedBlog.populate('user', { username: 1, name: 1 });
+        console.log('Populated blog:', populatedBlog);
+        if (!populatedBlog) {
+            return response.status(404).json({ error: 'blog not found' });
+        }
+        const blogToReturn = populatedBlog.toJSON();
+        console.log('Blog to return:', blogToReturn);
+        response.json(blogToReturn);
+    } catch (error) {
+        console.error('Error updating blog:', error.message);
+        response.status(500).json({ error: 'server error', details: error.message });
+    }
 });
 
 module.exports = blogsRouter;
