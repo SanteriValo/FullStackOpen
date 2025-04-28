@@ -29,7 +29,7 @@ blogsRouter.post('/', middleware.userExtractor, async (request, response) => {
         if (error.name === 'ValidationError') {
             return response.status(400).json({ error: error.message });
         }
-        throw error; // Если это не ошибка валидации, пусть Express обработает её как 500
+        throw error;
     }
 });
 
@@ -56,10 +56,12 @@ blogsRouter.put('/:id', async (request, response) => {
         title: body.title,
         author: body.author,
         url: body.url,
-        likes: body.likes
+        likes: body.likes,
+        user: body.user
     };
 
-    const updatedBlog = await Blog.findByIdAndUpdate(request.params.id, blog, { new: true });
+    const updatedBlog = await Blog.findByIdAndUpdate(request.params.id, blog, { new: true })
+        .populate('user', { username: 1, name: 1 });
     response.json(updatedBlog);
 });
 

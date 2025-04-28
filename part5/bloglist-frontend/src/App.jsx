@@ -33,6 +33,11 @@ const App = () => {
         }, duration)
     }
 
+    const updateBlog = (updatedBlog) => {
+        setBlogs(blogs.map(blog => blog.id === updatedBlog.id ? updatedBlog : blog))
+    }
+
+
     const handleLogin = async (username, password) => {
         try {
             const user = await loginService.login({username, password})
@@ -75,7 +80,7 @@ const App = () => {
                         <BlogForm createBlog={addBlog}/>
                     </Togglable>
                     {blogs.map(blog =>
-                        <Blog key={blog.id} blog={blog}/>
+                        <Blog key={blog.id} blog={blog} updateBlog={updateBlog}/>
                     )}
                 </div>
             )}
