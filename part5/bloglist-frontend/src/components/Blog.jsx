@@ -1,7 +1,7 @@
 import {useState} from "react";
 import blogService from "../services/blogs";
 
-const Blog = ({blog, updateBlog}) => {
+const Blog = ({blog, updateBlog, deleteBlog, currentUser}) => {
     const [showDetails, setShowDetails] = useState(false)
     const [likes, setLikes] = useState(blog.likes)
 
@@ -19,11 +19,11 @@ const Blog = ({blog, updateBlog}) => {
 
     const handleLike = async () => {
         const updatedBlog = {
-            user: blog.user.id || blog.user._id,
+            user: blog.user.id || blog.user._id || blog.user,
             likes: likes + 1,
             author: blog.author,
             title: blog.title,
-            url: blog.url,
+            url: blog.url
         }
 
         try {
@@ -35,9 +35,23 @@ const Blog = ({blog, updateBlog}) => {
             setLikes(blogToUpdate.likes)
             updateBlog(blogToUpdate)
         } catch (error) {
-            console.error('Like error:', error)
+            console.error('Error liking blog:', error.response?.data || error.message)
         }
     }
+
+    const handleDelete = async () => {
+        if (window.confirm(`Remove blog "${blog.title}" by ${blog.author}?`)) {
+            try {
+                await blogService.remove(blog.id)
+                deleteBlog(blog.id)
+            } catch (error) {
+                console.error('Error deleting blog:', error.response?.data || error.message)
+            }
+        }
+    }
+
+    const isBlogCreator = currentUser && blog.user &&
+        (currentUser.username === (blog.user.username || blog.user))
 
     return (
         <div style={blogStyle}>
@@ -48,8 +62,11 @@ const Blog = ({blog, updateBlog}) => {
             {showDetails && (
                 <div>
                     <p>{blog.url}</p>
-                    <p>likes: {blog.likes} <button onClick={handleLike}>like</button></p>
-                    <p>{blog.user.username}</p>
+                    <p>likes: {likes} <button onClick={handleLike}>like</button></p>
+                    <p>{(blog.user.username || blog.user) || 'Unknown user'}</p>
+                    {isBlogCreator && (
+                        <button onClick={handleDelete}>remove</button>
+                    )}
                 </div>
             )}
         </div>

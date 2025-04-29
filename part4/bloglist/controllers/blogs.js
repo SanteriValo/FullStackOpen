@@ -21,10 +21,10 @@ blogsRouter.post('/', middleware.userExtractor, async (request, response) => {
 
     try {
         const savedBlog = await blog.save();
+        const populatedBlog = await Blog.findById(savedBlog._id).populate('user', { username: 1, name: 1 });
         user.blogs = user.blogs.concat(savedBlog._id);
         await user.save();
-
-        response.status(201).json(savedBlog);
+        response.status(201).json(populatedBlog);
     } catch (error) {
         if (error.name === 'ValidationError') {
             return response.status(400).json({ error: error.message });
@@ -67,7 +67,7 @@ blogsRouter.put('/:id', async (request, response) => {
         console.log('Update data:', blog);
         const updatedBlog = await Blog.findByIdAndUpdate(request.params.id, blog, { new: true });
         console.log('Updated blog before populate:', updatedBlog);
-        const populatedBlog = await updatedBlog.populate('user', { username: 1, name: 1 });
+        const populatedBlog = await Blog.findById(request.params.id).populate('user', { username: 1, name: 1 });
         console.log('Populated blog:', populatedBlog);
         if (!populatedBlog) {
             return response.status(404).json({ error: 'blog not found' });
