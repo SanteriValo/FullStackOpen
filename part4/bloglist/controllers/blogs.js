@@ -63,20 +63,14 @@ blogsRouter.put('/:id', async (request, response) => {
     };
 
     try {
-        console.log('Updating blog with ID:', request.params.id);
-        console.log('Update data:', blog);
         const updatedBlog = await Blog.findByIdAndUpdate(request.params.id, blog, { new: true });
-        console.log('Updated blog before populate:', updatedBlog);
         const populatedBlog = await Blog.findById(request.params.id).populate('user', { username: 1, name: 1 });
-        console.log('Populated blog:', populatedBlog);
         if (!populatedBlog) {
             return response.status(404).json({ error: 'blog not found' });
         }
         const blogToReturn = populatedBlog.toJSON();
-        console.log('Blog to return:', blogToReturn);
         response.json(blogToReturn);
     } catch (error) {
-        console.error('Error updating blog:', error.message);
         response.status(500).json({ error: 'server error', details: error.message });
     }
 });
