@@ -63,20 +63,27 @@ const Blog = ({ blog, updateBlog, deleteBlog, currentUser }) => {
     currentUser.username === (blog.user.username || blog.user)
 
   return (
-    <div style={blogStyle}>
-      <div>
-        {blog.title} {blog.author}
+    <div style={blogStyle} className="blog">
+      <div className="blog-title-author">
+        <span className="blog-title">{blog.title}</span>{' '}
+        <span className="blog-author">{blog.author}</span>
         <button onClick={toggleDetails}>{showDetails ? 'hide' : 'view'}</button>
       </div>
       {showDetails && (
-        <div>
-          <p>{blog.url}</p>
-          <p>
-            likes: {likes}
+        <div className="blog-details">
+          <p className="blog-url">{blog.url}</p>
+          <p className="blog-likes">
+                likes: {likes}
             <button onClick={handleLike}>like</button>
           </p>
-          <p>{blog.user.username || blog.user || 'Unknown user'}</p>
-          {isBlogCreator && <button onClick={handleDelete}>remove</button>}
+          <p className="blog-user">
+            {blog.user.username || blog.user || 'Unknown user'}
+          </p>
+          {isBlogCreator && (
+            <button onClick={handleDelete} className="blog-remove">
+                    remove
+            </button>
+          )}
         </div>
       )}
     </div>
