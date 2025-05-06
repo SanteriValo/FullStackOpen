@@ -19,7 +19,10 @@ const Notification = ({ message }) => {
   }
 
   return (
-    <div style={style}>
+    <div
+      className={message.type}
+      data-testid={message.type === 'error' ? 'error-message' : 'notification'}
+    >
       {message.text}
     </div>
   )
