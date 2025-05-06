@@ -26,6 +26,7 @@ const BlogForm = ( { createBlog } ) => {
             value={title}
             onChange={({ target }) => setTitle(target.value)}
             aria-label="title"
+            data-testid="title-input"
           />
         </label>
       </div>
@@ -36,6 +37,7 @@ const BlogForm = ( { createBlog } ) => {
             value={author}
             onChange={({ target }) => setAuthor(target.value)}
             aria-label="author"
+            data-testid="author-input"
           />
         </label>
       </div>
@@ -46,10 +48,11 @@ const BlogForm = ( { createBlog } ) => {
             value={url}
             onChange={({ target }) => setUrl(target.value)}
             aria-label="url"
+            data-testid="url-input"
           />
         </label>
       </div>
-      <button type="submit">create</button>
+      <button type="submit" data-testid="create-blog-button">create</button>
     </form>
   )
 }

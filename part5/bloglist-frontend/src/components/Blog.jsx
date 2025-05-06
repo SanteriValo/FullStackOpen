@@ -63,7 +63,7 @@ const Blog = ({ blog, updateBlog, deleteBlog, currentUser }) => {
     currentUser.username === (blog.user.username || blog.user)
 
   return (
-    <div style={blogStyle} className="blog">
+    <div style={blogStyle} className="blog" data-testid="blog-item">
       <div className="blog-title-author">
         <span className="blog-title">{blog.title}</span>{' '}
         <span className="blog-author">{blog.author}</span>

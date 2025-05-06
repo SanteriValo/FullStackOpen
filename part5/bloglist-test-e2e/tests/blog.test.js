@@ -49,4 +49,33 @@ describe('Blog app', () => {
       await expect(page.getByText('testuser logged in')).not.toBeVisible();
     });
   });
+
+  describe('When logged in', () => {
+    beforeEach(async ({ page }) => {
+      // Логинимся в систему
+      await page.getByTestId('username-input').fill('testuser');
+      await page.getByTestId('password-input').fill('testpassword');
+      await page.getByTestId('login-button').click();
+
+      // Ожидаем, что пользователь вошел в систему
+      await expect(page.getByText('testuser logged in')).toBeVisible({ timeout: 10000 });
+    });
+
+    test('a new blog can be created', async ({ page }) => {
+      // Кликаем по кнопке для создания нового блога
+      await page.getByText('Create new blog').click();
+
+      // Заполняем поля для нового блога
+      await page.getByTestId('title-input').fill('My New Blog');
+      await page.getByTestId('author-input').fill('Test Author');
+      await page.getByTestId('url-input').fill('https://testblog.com');
+
+      // Отправляем форму
+      await page.getByTestId('create-blog-button').click();
+
+      // Проверяем, что новый блог появился в списке
+      const blogItems = await page.getByTestId('blog-item');
+      await expect(blogItems.first()).toContainText('My New Blog');
+    });
+  });
 });
