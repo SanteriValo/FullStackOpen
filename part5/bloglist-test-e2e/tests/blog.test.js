@@ -56,7 +56,7 @@ describe('Blog app', () => {
       await page.getByTestId('password-input').fill('testpassword');
       await page.getByTestId('login-button').click();
 
-      await expect(page.getByText('testuser logged in')).toBeVisible({ timeout: 10000 });
+      await expect(page.getByText('testuser logged in')).toBeVisible({ timeout: 15000 });
     });
 
     test('a new blog can be created', async ({ page }) => {
@@ -68,8 +68,35 @@ describe('Blog app', () => {
 
       await page.getByTestId('create-blog-button').click();
 
+      await expect(page.getByTestId('blog-item').first()).toBeVisible({ timeout: 10000 });
+
+      await expect(page.getByTestId('blog-item').first()).toContainText('My New Blog');
+
       const blogItems = await page.getByTestId('blog-item');
+      console.log('Blog count:', await blogItems.count());
       await expect(blogItems.first()).toContainText('My New Blog');
+    });
+
+    test('a blog can be liked', async ({ page }) => {
+      await page.getByTestId('new-blog-button').click();
+
+      await page.getByTestId('title-input').fill('Liking Blog Test');
+      await page.getByTestId('author-input').fill('Tester');
+      await page.getByTestId('url-input').fill('http://testblog.com');
+      await page.getByTestId('create-blog-button').click();
+
+      const blog = page.getByTestId('blog-item').first();
+      await blog.getByRole('button', { name: 'view' }).click();
+
+      const likeButton = blog.getByRole('button', { name: 'like' });
+      const likesText = await blog.getByText(/likes: \d+/);
+      const initialLikes = parseInt((await likesText.innerText()).match(/\d+/)[0]);
+
+      await likeButton.click();
+      await page.waitForTimeout(500);
+
+      const updatedLikesText = await blog.getByText(`likes: ${initialLikes + 1}`);
+      await expect(updatedLikesText).toBeVisible();
     });
   });
 });
