@@ -95,5 +95,17 @@ describe('Blog app', () => {
       await blog.getByRole('button', { name: 'view' }).click();
       await expect(blog.getByRole('button', { name: 'remove' })).not.toBeVisible();
     });
+
+    test('blogs are sorted by likes', async ({ page }) => {
+      await createBlog(page, 'Blog One', 'Author One', 'https://blogone.com');
+      await createBlog(page, 'Blog Two', 'Author Two', 'https://blogtwo.com');
+      const blogTwo = page.getByTestId('blog-item').filter({ hasText: 'Blog Two' });
+      await blogTwo.getByRole('button', { name: 'view' }).click();
+      await blogTwo.getByRole('button', { name: 'like' }).click();
+      await page.waitForTimeout(500); // Wait for UI update
+      const blogTitles = await page.getByTestId('blog-item').all();
+      const firstBlogTitle = await blogTitles[0].textContent();
+      expect(firstBlogTitle).toContain('Blog Two');
+    });
   });
 });
