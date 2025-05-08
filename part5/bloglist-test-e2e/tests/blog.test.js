@@ -86,5 +86,14 @@ describe('Blog app', () => {
       await blog.getByRole('button', { name: 'remove' }).click();
       await expect(page.getByTestId('blog-item').filter({ hasText: 'Blog to Delete' })).not.toBeVisible({ timeout: 5000 });
     });
+
+    test('only the creator sees the remove button', async ({ page }) => {
+      await createBlog(page, 'Blog to Check', 'Test Author', 'https://checkblog.com');
+      await page.getByRole('button', { name: 'logout' }).click();
+      await loginWith(page, 'otheruser', 'otherpassword');
+      const blog = page.getByTestId('blog-item').filter({ hasText: 'Blog to Check' });
+      await blog.getByRole('button', { name: 'view' }).click();
+      await expect(blog.getByRole('button', { name: 'remove' })).not.toBeVisible();
+    });
   });
 });
